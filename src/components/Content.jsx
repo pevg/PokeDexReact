@@ -15,6 +15,7 @@ const Content = () => {
   const [pokemons, setPokemons] = useState([]);
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -32,7 +33,9 @@ const Content = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       if (selectedType === "all") {
+        setPokemons([]);
         const response = await fetch(
           `${POKEMON_BASE_API}?limit=${itemsPerPage}&offset=${
             (currentPage - 1) * itemsPerPage
@@ -62,6 +65,7 @@ const Content = () => {
 
         setPokemons(detailedPokemons);
       }
+      setLoading(false);
     };
 
     fetchData();
@@ -78,14 +82,23 @@ const Content = () => {
   }, []);
 
   const pokemonList = () => {
+    if (loading) {
+      return <p>Loading Pokémon...</p>;
+    }
     return pokemons.map((pokemon, index) => {
+      if (!pokemon || (selectedType === "all" && !pokemon.url)) {
+        return null;
+      }
+
+      const pokemonId =
+        selectedType === "all" ? pokemon.url.split("/")[6] : pokemon.id;
+
+      const pokemonName = pokemon.name;
       return (
         <PokemonCard
           key={index}
-          name={pokemon.name}
-          imageUrl={`${SPRITES_BASE_URL}${
-            selectedType === "all" ? pokemon.url.split("/")[6] : pokemon.id
-          }.svg`}
+          name={`${pokemonId} - ${pokemonName}`}
+          imageUrl={`${SPRITES_BASE_URL}${pokemonId}.svg`}
         />
       );
     });
