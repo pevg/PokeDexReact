@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import PokemonCard from "./PokemonCard";
 import Pagination from "./Pagination";
+import PokemonDetail from "./PokemonDetail";
 import "./Content.css";
 
 const Content = () => {
@@ -16,6 +17,7 @@ const Content = () => {
   const [types, setTypes] = useState([]);
   const [selectedType, setSelectedType] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [selectedPokemon, setSelectedPokemon] = useState(null);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -29,6 +31,17 @@ const Content = () => {
   const handleTypeChange = (event) => {
     setSelectedType(event.target.value);
     setCurrentPage(1);
+  };
+
+  const handlePokemonClick = async (pokemonUrl) => {
+    console.log("clic");
+    const response = await fetch(pokemonUrl);
+    const data = await response.json();
+    setSelectedPokemon(data);
+  };
+
+  const handleBackClick = () => {
+    setSelectedPokemon(null);
   };
 
   useEffect(() => {
@@ -56,14 +69,9 @@ const Content = () => {
           currentPage * itemsPerPage
         );
 
-        const detailedPokemons = await Promise.all(
-          paginatedPokemons.map(async (pokemon) => {
-            const res = await fetch(pokemon.url);
-            return await res.json();
-          })
-        );
+        console.log(paginatedPokemons);
 
-        setPokemons(detailedPokemons);
+        setPokemons(paginatedPokemons);
       }
       setLoading(false);
     };
@@ -90,8 +98,7 @@ const Content = () => {
         return null;
       }
 
-      const pokemonId =
-        selectedType === "all" ? pokemon.url.split("/")[6] : pokemon.id;
+      const pokemonId = pokemon.url.split("/")[6];
 
       const pokemonName = pokemon.name;
       return (
@@ -99,6 +106,7 @@ const Content = () => {
           key={index}
           name={`${pokemonId} - ${pokemonName}`}
           imageUrl={`${SPRITES_BASE_URL}${pokemonId}.svg`}
+          onClick={() => handlePokemonClick(pokemon.url)}
         />
       );
     });
@@ -116,25 +124,31 @@ const Content = () => {
 
   return (
     <div className="content">
-      <h2>PokeDex Nación</h2>
-      <div className="dropdown-container">
-        <select onChange={handleTypeChange} value={selectedType}>
-          <option key={4321} value={"all"}>
-            all
-          </option>
-          {pokemonTypes()}
-        </select>
-      </div>
+      {selectedPokemon ? (
+        <PokemonDetail pokemon={selectedPokemon} onBack={handleBackClick} />
+      ) : (
+        <>
+          <h2>PokeDex Nación</h2>
+          <div className="dropdown-container">
+            <select onChange={handleTypeChange} value={selectedType}>
+              <option key={4321} value={"all"}>
+                all
+              </option>
+              {pokemonTypes()}
+            </select>
+          </div>
 
-      <section className="pokemon-grid">{pokemonList()}</section>
+          <section className="pokemon-grid">{pokemonList()}</section>
 
-      <Pagination
-        currentPage={currentPage}
-        totalItems={totalItems}
-        itemsPerPage={itemsPerPage}
-        onPageChange={handlePageChange}
-        onItemsPerPageChange={handleItemsPerPageChange}
-      />
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={itemsPerPage}
+            onPageChange={handlePageChange}
+            onItemsPerPageChange={handleItemsPerPageChange}
+          />
+        </>
+      )}
     </div>
   );
 };

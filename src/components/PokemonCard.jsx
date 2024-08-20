@@ -1,9 +1,9 @@
 import PropTypes from "prop-types";
 import "./PokemonCard.css";
 
-const PokemonCard = ({ name, imageUrl }) => {
+const PokemonCard = ({ name, imageUrl, onClick }) => {
   return (
-    <div className="pokemon-card">
+    <div className="pokemon-card" onClick={onClick}>
       <img src={imageUrl} alt={name} />
       <h3>{name}</h3>
     </div>
@@ -13,6 +13,7 @@ const PokemonCard = ({ name, imageUrl }) => {
 PokemonCard.propTypes = {
   name: PropTypes.string.isRequired,
   imageUrl: PropTypes.string.isRequired,
+  onClick: PropTypes.func.isRequired,
 };
 
 export default PokemonCard;
