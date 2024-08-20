@@ -5,11 +5,13 @@ import PokemonDetail from "./PokemonDetail";
 import "./Content.css";
 
 const Content = () => {
+  // URLs base para las API de Pokémon y tipos
   const POKEMON_BASE_API = "https://pokeapi.co/api/v2/pokemon/";
   const SPRITES_BASE_URL =
     "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/dream-world/";
   const TYPES_BASE_URL = "https://pokeapi.co/api/v2/type/";
 
+  // Estados para manejar la paginación, los Pokémons, el filtro de tipo de Pokémon, la carga de datos, y el Pokémon seleccionado
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(10);
@@ -19,6 +21,7 @@ const Content = () => {
   const [loading, setLoading] = useState(true);
   const [selectedPokemon, setSelectedPokemon] = useState(null);
 
+  // Funciones para manejar la paginación ---------------------- //
   const handlePageChange = (page) => {
     setCurrentPage(page);
   };
@@ -27,23 +30,27 @@ const Content = () => {
     setItemsPerPage(newItemsPerPage);
     setCurrentPage(1);
   };
+  // ---------------------- Funciones para manejar la paginación //
 
+  // Gestión de los cambios del dropdown de tipo
   const handleTypeChange = (event) => {
     setSelectedType(event.target.value);
     setCurrentPage(1);
   };
 
+  // Gestión de los detalles de un Pokémon
   const handlePokemonClick = async (pokemonUrl) => {
-    console.log("clic");
     const response = await fetch(pokemonUrl);
     const data = await response.json();
     setSelectedPokemon(data);
   };
 
+  // Vuelve a la lista de Pokémon al salir de la vista detallada
   const handleBackClick = () => {
     setSelectedPokemon(null);
   };
 
+  // Efecto para cargar los Pokémons basado en el tipo seleccionado y la paginación
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -69,8 +76,6 @@ const Content = () => {
           currentPage * itemsPerPage
         );
 
-        console.log(paginatedPokemons);
-
         setPokemons(paginatedPokemons);
       }
       setLoading(false);
@@ -79,6 +84,7 @@ const Content = () => {
     fetchData();
   }, [selectedType, currentPage, itemsPerPage]);
 
+  // Efecto para cargar los tipos de Pokémon al inicializar el componente
   useEffect(() => {
     const fetchTypes = async () => {
       const response = await fetch(TYPES_BASE_URL);
@@ -89,6 +95,7 @@ const Content = () => {
     fetchTypes();
   }, []);
 
+  // Función para renderizar la lista de Pokémon
   const pokemonList = () => {
     if (loading) {
       return <p>Loading Pokémon...</p>;
@@ -112,6 +119,7 @@ const Content = () => {
     });
   };
 
+  // Función para renderizar las opciones del dropdown de tipos
   const pokemonTypes = () => {
     return types.map((type, index) => {
       return (

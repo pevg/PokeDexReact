@@ -6,12 +6,15 @@ import Footer from "./components/Footer";
 import "./App.css";
 
 const App = () => {
+  // Estado para controlar si el sidebar está abierto o cerrado
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  // Función para alternar el estado del sidebar
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Efecto que maneja el estado del sidebar en función del tamaño de la ventana
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
